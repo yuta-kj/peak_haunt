@@ -8,23 +8,28 @@
 - インフラ: サーバーレス設計 (AWS Lambda / API Gateway)
 - DB: PostgreSQL + pgvector
 - ローカル運用: Docker Compose
-- 設計思想: Clean Architecture 風に `app`, `application`, `database` を分離
+- 設計思想: Clean Architecture 風に `api`, `application`, `database` を分離
 
 ## ディレクトリ構成
 
 ```text
 .
-├── app/
-│   └── frontend/                 # Next.js
-├── application/
-│   └── backend/
-│       └── src/
-│           ├── app/              # Presentation layer (FastAPI router)
-│           ├── application/      # Use cases
-│           └── database/         # Repository / DB session / SQL
-├── infra/
-│   └── lambda/
-│       └── template.yaml         # AWS SAM template
+├── api/                          # FastAPI / Python 側の実装
+│   ├── pyproject.toml
+│   ├── databse/                  # DB 関連 (現状のディレクトリ名)
+│   ├── tests/
+│   └── utils/
+├── application/                  # Next.js 側の実装
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── actions/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   ├── public/
+│   └── schemas/
+├── database/
 ├── docker-compose.yml
 └── .env.example
 ```
@@ -42,16 +47,7 @@ docker compose up --build
 - Backend: http://localhost:8000
 - Health API: http://localhost:8000/api/v1/health
 
-## サーバーレスデプロイの足場
-
-`infra/lambda/template.yaml` は AWS SAM 用のひな形です。  
-本番では以下を調整してください。
-
-- `DATABASE_URL` を RDS/Aurora PostgreSQL へ接続する値に変更
-- VPC/Subnet/Security Group 設定を Function に追加
-- CI/CD で `sam build` / `sam deploy` を組み込み
-
 ## 補足
 
-- `application/backend/src/database/sql/init.sql` で `pgvector` 拡張を有効化
-- 現在のヘルスチェックは最小実装です。今後、トレーニング記録や推薦機能を `application` と `database` に拡張できます
+- この README の構成図は、現在のルート直下ディレクトリ構成に合わせて更新しています
+- 現在のヘルスチェックは最小実装です。今後、トレーニング記録や推薦機能を `api` と `database` に拡張できます
