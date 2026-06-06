@@ -3,16 +3,20 @@ FROM python:3.11-slim
 
 WORKDIR /usr/src/app
 
+# Poetryをインストール
+RUN pip install --no-cache-dir poetry
+
+# pyproject.toml と poetry.lock をコピー
+COPY pyproject.toml poetry.lock* ./
+
+# 依存関係をインストール（本番環境）
+RUN poetry install --only main --no-root
+
 # アプリケーションコードをコピー
 COPY . .
-
-# 依存関係をインストール
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install fastapi uvicorn[standard] || \
-    (echo "Installation failed" && exit 1)
 
 # ポート 8000 を公開
 EXPOSE 8000
 
 # アプリケーションを起動
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

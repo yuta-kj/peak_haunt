@@ -1,0 +1,39 @@
+{
+  "name": "pre-commit",
+  "description": "Lint and formatter validation before committing code",
+  "stages": [
+    {
+      "name": "lint-api-python",
+      "description": "Lint Python code in api/ folder with ruff",
+      "applyTo": "api/**/*.py",
+      "command": "cd api && python -m ruff check . --exit-zero 2>/dev/null || true",
+      "failOnError": false,
+      "skipOnNoMatches": true
+    },
+    {
+      "name": "format-check-api",
+      "description": "Check code formatting in api/ with ruff format",
+      "applyTo": "api/**/*.py",
+      "command": "cd api && python -m ruff format --check . 2>/dev/null || echo '⚠️ フォーマット情報: api/ 内で \"python -m ruff format .\" を実行してください'",
+      "failOnError": false,
+      "skipOnNoMatches": true
+    },
+    {
+      "name": "lint-app",
+      "description": "Lint TypeScript/JavaScript in application/",
+      "applyTo": "application/**/*.{ts,tsx,js,jsx}",
+      "command": "cd application && npm run lint 2>/dev/null || echo '⚠️ Lint チェック失敗。上記の出力を確認してください。'",
+      "failOnError": false,
+      "skipOnNoMatches": true
+    },
+    {
+      "name": "check-sensitive-files",
+      "description": "Prevent accidental commit of sensitive files",
+      "command": "git diff --cached --name-only | grep -E '(\\.env|\\.env\\.local|secret|password)' && echo '❌ エラー: 秘密ファイルが検出されました。.env やシークレットファイルをコミットしないでください!' && exit 1 || exit 0",
+      "failOnError": true,
+      "skipOnNoMatches": false
+    }
+  ],
+  "onFailure": "warn",
+  "allowSkip": true
+}
