@@ -1,6 +1,12 @@
 from fastapi import FastAPI
+from routers.v1 import chat, files, tasks
 
 app = FastAPI(title="Peak Haunt API")
+
+# Include v1 routers
+app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
+app.include_router(files.router, prefix="/api/v1", tags=["files"])
+app.include_router(tasks.router, prefix="/api/v1", tags=["tasks"])
 
 @app.get("/")
 def read_root():

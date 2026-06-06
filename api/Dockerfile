@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3.11-slim
 
 WORKDIR /usr/src/app
@@ -6,7 +7,9 @@ WORKDIR /usr/src/app
 COPY . .
 
 # 依存関係をインストール
-RUN pip install --no-cache-dir fastapi uvicorn[standard] 2>&1 || true
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install fastapi uvicorn[standard] || \
+    (echo "Installation failed" && exit 1)
 
 # ポート 8000 を公開
 EXPOSE 8000

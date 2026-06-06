@@ -1,5 +1,5 @@
 services:
-  frontend:
+  app:
     build:
       context: ./application
       dockerfile: Dockerfile
@@ -11,12 +11,12 @@ services:
       - ./application:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      - backend
+      - api
     dns:
       - 8.8.8.8
       - 8.8.4.4
 
-  backend:
+  api:
     build:
       context: ./api
       dockerfile: Dockerfile
