@@ -10,29 +10,26 @@
 - ローカル運用: Docker Compose
 - 設計思想: Clean Architecture 風に `api`, `application`, `database` を分離
 
-## ディレクトリ構成
+## 技術スタック
 
-```text
-.
-├── api/                          # FastAPI / Python 側の実装
-│   ├── pyproject.toml
-│   ├── databse/                  # DB 関連 (現状のディレクトリ名)
-│   ├── tests/
-│   └── utils/
-├── application/                  # Next.js 側の実装
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── actions/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   ├── public/
-│   └── schemas/
-├── database/
-├── docker-compose.yml
-└── .env.example
-```
+### Backend
+- Python: 3.11以上
+- フレームワーク: FastAPI
+- パッケージ管理: Poetry
+
+### Frontend
+- フレームワーク: Next.js
+- 言語: TypeScript
+
+### 開発環境
+- Docker Compose
+- PostgreSQL + pgvector
+
+### 品質管理
+- Python Linting: ruff
+- Python テスト: pytest
+- TypeScript: strict モード設定
+
 
 ## ローカル起動
 
