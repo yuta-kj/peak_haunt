@@ -1,7 +1,7 @@
 ---
 name: git-commit
-description: "Conventional Commits形式でGitコミットを作成します。使用方法：ステージされた変更をコミットしたい、Conventional Commits形式で統一したい、コミット前にファイルを確認したい場合に使用できます。"
-argument-hint: "オプション：コミットメッセージを提供すると自動検証・実行します（例：feat(auth): add login form validation）"
+description: "Conventional Commits形式でGitコミットを作成します。`git commit auto` で自動生成、`git commit <message>` で検証、`git commit` で対話的に実行。ステージされた変更をConventional Commits形式でコミットしたい、コミットメッセージを統一したい場合に使用できます。"
+argument-hint: "オプション：auto（自動生成）またはコミットメッセージを提供（例：feat: add login form validation）"
 ---
 
 # Git Commit
