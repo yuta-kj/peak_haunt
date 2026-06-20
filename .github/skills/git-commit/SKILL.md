@@ -12,17 +12,17 @@ Conventional Commits形式の自動検証付きでGitコミットを作成しま
 
 自動生成モード（推奨）：
 ```
-git-commit auto
+git commit auto
 ```
 
 メッセージを指定して実行：
 ```
-git-commit feat: 新機能の説明
+git commit feat: 新機能の説明
 ```
 
 対話的に実行：
 ```
-git-commit
+git commit
 ```
 
 ## 使用場面
@@ -52,9 +52,9 @@ git-commit
 ### 2. AI が自動判断
 
 ユーザーの入力に応じて以下に分岐：
-- `git-commit auto` → ステップ3: 自動生成フロー
-- `git-commit <メッセージ>` → ステップ4: 自動検証・実行フロー
-- `git-commit` → ステップ5: 対話的モード
+- `git commit auto` → ステップ3: 自動生成フロー
+- `git commit <メッセージ>` → ステップ4: 自動検証・実行フロー
+- `git commit` → ステップ5: 対話的モード
 
 ### 3. 自動生成フロー（パターンA）
 
@@ -140,7 +140,7 @@ feat(auth): add login form validation
   - Description が55文字です（最大50文字）
 
 修正して再度実行してください：
-/git-commit feat(auth): fix error message character count
+/git commit feat(auth): fix error message character count
 ```
 
 ### 5. 対話的モード（パターンC）
