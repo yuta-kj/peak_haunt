@@ -1,14 +1,14 @@
 services:
   app:
     build:
-      context: ./application
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
     volumes:
-      - ./application:/usr/src/app
+      - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       - api
@@ -18,14 +18,14 @@ services:
 
   api:
     build:
-      context: ./api
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://postgres:postgres@db:5432/peak_haunt}
     volumes:
-      - ./api:/usr/src/app
+      - ./backend:/usr/src/app
     depends_on:
       - db
     dns:
