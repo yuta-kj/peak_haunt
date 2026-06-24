@@ -68,9 +68,9 @@ Conventional Commits 形式を必ず使用してください。
 
 ### 例
 ```
-feat(frontend): add chat window component
-fix(api): handle file upload timeout
-docs(readme): update setup instructions
+feat: add chat window component
+fix: handle file upload timeout
+docs: update setup instructions
 ```
 
 ## ディレクトリ構造
