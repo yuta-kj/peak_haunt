@@ -79,7 +79,6 @@ git commit
 #### 3.2 メッセージを生成
 
 ファイル変更から自動的にメッセージを生成：
-- 領域（auth, api, ui など）を自動判定
 - 50文字以内に収める
 
 #### 3.3 最終確認画面
@@ -91,7 +90,7 @@ git commit
 
 AIが変更内容から自動生成：
 
-feat(auth): add login form validation
+feat: add login form validation
 
 このメッセージでコミットしますか? [y/n/e]
   y: コミット実行
@@ -110,38 +109,35 @@ feat(auth): add login form validation
 #### 4.1 メッセージを解析
 入力から以下を抽出します：
 - Type: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
-- Scope(オプション): 括弧内のテキスト
 - Description: コロン後のテキスト
 
-例：`feat(auth): add login form validation`
+例：`feat: add login form validation`
 - Type: `feat`
-- Scope: `auth`
 - Description: `add login form validation`
 
 #### 4.2 フォーマット検証
 
-形式: `<type>[(<scope>)]: <description>`
+形式: `<type>: <description>`
 
 **検証項目：**
 - **Type**: feat, fix, docs, style, refactor, perf, test, chore のいずれか
-- **Scope**（オプション）: 変更の影響を受ける領域（auth, api, ui など、小文字、1～3単語）
 - **Description**: 命令形で50文字以下、最初は大文字、ピリオドなし、具体的に記述
 
 例：
-- `feat(auth): add login validation`
-- `fix(api): resolve timeout error`
+- `feat: add login validation`
+- `fix: resolve timeout error`
 - `docs: update readme`
 
 #### 4.3 検証結果に応じた処理
 
 検証成功の場合:
 ```
-フォーマット検証完了: feat(auth): add login form validation
+フォーマット検証完了: feat: add login form validation
 
 実行してもよろしいですか? [y/n]
 ```
 - ユーザーが確認 → コミット実行
-- `git commit -m "feat(auth): add login form validation"`
+- `git commit -m "feat: add login form validation"`
 
 検証失敗の場合:
 ```
@@ -149,7 +145,7 @@ feat(auth): add login form validation
   - Description が55文字です（最大50文字）
 
 修正して再度実行してください：
-/git commit feat(auth): fix error message character count
+/git commit feat: fix error message character count
 ```
 
 ### 5. 対話的モード（パターンC）
@@ -187,7 +183,7 @@ AI がメッセージを自動生成して表示：
 ```
 以下でコミットします：
 
-feat(auth): add login form validation
+feat: add login form validation
 
 実行してもよろしいですか？ [y/n]
 ```
@@ -195,14 +191,14 @@ feat(auth): add login form validation
 #### 5.5 コミット実行
 ユーザーが確認すればコミットを実行：
 ```
-git commit -m "feat(auth): add login form validation"
+git commit -m "feat: add login form validation"
 ```
 
 ### 6. 完了画面
 
 コミット成功時：
 ```
-コミット完了: feat(auth): add login form validation (abc1234)
+コミット完了: feat: add login form validation (abc1234)
 
 次のステップ：
   - git push で リモートにプッシュ
