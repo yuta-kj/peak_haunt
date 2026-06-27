@@ -1,29 +1,18 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
+
+# 依存関係ファイルをコピー
+COPY package.json package-lock.json* ./
+
+# 依存関係をインストール
+RUN npm install
 
 # アプリケーションコードをコピー
 COPY . .
 
-# 依存関係をインストール
-RUN npm install --legacy-peer-deps
-
-# Next.js をビルド
-RUN npm run build
-
-# 本番イメージ
-FROM node:18-alpine
-
-WORKDIR /app
-
-# ビルダーから .next とnode_modules をコピー
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-
 # ポート 3000 を公開
 EXPOSE 3000
 
-# アプリケーションを起動
-CMD ["npm", "start"]
+# 開発サーバーを起動（0.0.0.0 でコンテナ外からアクセス可能にする）
+CMD ["npx", "next", "dev", "-H", "0.0.0.0"]
