@@ -1,0 +1,105 @@
+トラブルシューティング まとめ (2026-06-27)
+==========================================
+
+Issue 1: Docker 認証情報エラー
+-------------------------------
+エラー: error getting credentials - err: exit status 1
+
+原因:
+  ~/.docker/config.json に "credsStore": "desktop.exe" が残っていたが、
+  WSL ↔ Docker Desktop 間の接続が切れていた
+
+解決策:
+  echo '{}' > ~/.docker/config.json
+
+
+Issue 2: Tailwind v4 の npm セマンティックバージョン問題
+---------------------------------------------------------
+エラー: Cannot find module '@tailwindcss/postcss'
+
+原因:
+  package.json に "tailwindcss": "^3.4.0" と書いていても、
+  npm レジストリの latest タグが v4 を指しているため v4 がインストールされた。
+  しかし設定ファイルは v3 形式のまま。
+
+解決策（当時の暫定対応）:
+  tailwindcss: 3.4.19（固定バージョン、^ なし）に変更
+
+※ 補足: この暫定対応は Issue 4 と Issue 5 を解決してから v4 に再移行しました。
+   最終的には tailwindcss: ^4.0.0 で運用しています。
+
+
+Issue 3: Docker ボリュームキャッシュ問題
+-----------------------------------------
+症状: docker compose build --no-cache しても古い node_modules が残っていた
+
+原因:
+  node_modules が Docker の名前付きボリュームにキャッシュされていた
+
+解決策:
+  docker compose down -v  # ボリュームごと削除
+
+
+Issue 4: glibc / musl バイナリ不一致（マルチステージビルド）
+-------------------------------------------------------------
+エラー: Error loading shared library ld-linux-x86-64.so.2: No such file or directory
+
+原因:
+  builder を node:18（Debian / glibc）にすると SWC バイナリが glibc 用にコンパイルされ、
+  Alpine（musl）の runner で動作しない
+
+  node:18 (glibc) → @next/swc-linux-x64-gnu → Alpine では動かない ❌
+
+解決策:
+  builder も node:18-alpine に変更し、ビルドツールを apk add で追加
+
+  Dockerfile:
+    FROM node:18-alpine AS builder
+    RUN apk add --no-cache python3 make g++
+
+
+Issue 5: npm bug #4828（Tailwind v4 ネイティブバインディング未インストール）
+---------------------------------------------------------------------------
+エラー: Cannot find native binding. npm has a bug related to optional dependencies
+       (https://github.com/npm/cli/issues/4828)
+
+原因:
+  @tailwindcss/oxide はプラットフォーム別のバイナリを optionalDependencies として持つが、
+  npm の既知バグにより Alpine 環境で @tailwindcss/oxide-linux-x64-musl が
+  インストールされなかった
+
+解決策（2段階）:
+  1. package-lock.json をコピーしない（ロックファイルなしで fresh resolution させる）
+
+     Dockerfile:
+       COPY package.json ./        # package-lock.json は除外
+       RUN npm install
+
+  2. oxide バインディングを明示的にインストール
+
+     Dockerfile:
+       RUN npm install && \
+           OXIDE_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('node_modules/@tailwindcss/oxide/package.json')).version)") && \
+           npm install --no-save "@tailwindcss/oxide-linux-x64-musl@${OXIDE_VER}"
+
+
+最終的な Dockerfile 構成
+-------------------------
+ステージ 1 (builder): node:18-alpine + python3/make/g++
+  └── npm install（package.json のみ、lock なし）
+  └── @tailwindcss/oxide-linux-x64-musl を明示インストール
+
+ステージ 2 (runner): node:18-alpine（軽量）
+  └── builder から node_modules をコピー
+  └── アプリ起動
+
+結果: Tailwind v4.3.1 + HTTP 200 ✅
+
+
+変更ファイル一覧
+----------------
+- frontend/Dockerfile         : マルチステージビルド化
+- frontend/package.json       : tailwindcss ^4.0.0, @tailwindcss/postcss 追加, autoprefixer 削除
+- frontend/postcss.config.js  : v4 形式（@tailwindcss/postcss）に変更
+- frontend/app/globals.css    : @import "tailwindcss" に変更
+- frontend/tailwind.config.js : 削除（v4 は自動検出のため不要）
