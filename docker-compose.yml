@@ -32,6 +32,8 @@ services:
       - ./backend:/usr/src/app
     depends_on:
       - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     dns:
       - 8.8.8.8
       - 8.8.4.4
