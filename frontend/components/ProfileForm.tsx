@@ -18,6 +18,8 @@ export default function ProfileForm() {
   const [name, setName] = useState("")
   const [gender, setGender] = useState<Gender | "">("")
   const [age, setAge] = useState("")
+  const [height, setHeight] = useState("")
+  const [weight, setWeight] = useState("")
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -31,6 +33,8 @@ export default function ProfileForm() {
       name,
       gender: gender || undefined,
       age: age === "" ? undefined : Number(age),
+      height: height === "" ? undefined : Number(height),
+      weight: weight === "" ? undefined : Number(weight),
     })
 
     if (!parsed.success) {
@@ -53,6 +57,8 @@ export default function ProfileForm() {
       setName("")
       setGender("")
       setAge("")
+      setHeight("")
+      setWeight("")
     } else {
       setServerError(result.error)
     }
@@ -139,6 +145,54 @@ export default function ProfileForm() {
           }`}
         />
         {errors.age && <p className="mt-1 text-xs text-red-500">{errors.age}</p>}
+      </div>
+
+      {/* 身長 */}
+      <div>
+        <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-1">
+          身長 <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <input
+            id="height"
+            type="number"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            placeholder="例: 170"
+            min={0}
+            max={300}
+            step={0.1}
+            className={`w-full rounded-md border px-3 py-2 pr-10 text-sm shadow-sm outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.height ? "border-red-400" : "border-gray-300"
+            }`}
+          />
+          <span className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-400">cm</span>
+        </div>
+        {errors.height && <p className="mt-1 text-xs text-red-500">{errors.height}</p>}
+      </div>
+
+      {/* 体重 */}
+      <div>
+        <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
+          体重 <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <input
+            id="weight"
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="例: 60"
+            min={0}
+            max={500}
+            step={0.1}
+            className={`w-full rounded-md border px-3 py-2 pr-10 text-sm shadow-sm outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.weight ? "border-red-400" : "border-gray-300"
+            }`}
+          />
+          <span className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-400">kg</span>
+        </div>
+        {errors.weight && <p className="mt-1 text-xs text-red-500">{errors.weight}</p>}
       </div>
 
       <button

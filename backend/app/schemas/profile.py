@@ -11,6 +11,8 @@ class ProfileCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     gender: GenderType
     age: int = Field(..., ge=0, le=150)
+    height: float = Field(..., ge=0, le=300)
+    weight: float = Field(..., ge=0, le=500)
 
 
 class ProfileResponse(ProfileCreate):
