@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import get_llm_provider
-from app.db.database import get_db
-from app.db.models import TrainingLog
+from app import crud
+from app.core.config import get_llm_provider
+from app.core.db import get_db
 from app.providers.base import LLMProvider
 
 router = APIRouter()
@@ -24,13 +23,7 @@ async def recommend(
     payload: RecommendRequest,
     db: AsyncSession = Depends(get_db),
 ) -> RecommendResponse:
-    result = await db.execute(
-        select(TrainingLog)
-        .where(TrainingLog.profile_id == payload.profile_id)
-        .order_by(TrainingLog.logged_at.desc())
-        .limit(5)
-    )
-    logs = list(result.scalars().all())
+    logs = await crud.get_recent_training_logs(db, payload.profile_id, limit=5)
 
     if not logs:
         raise HTTPException(status_code=404, detail="トレーニング記録が見つかりません")

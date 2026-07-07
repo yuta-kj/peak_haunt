@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 
 from app.api.routes import chat, files, profile, tasks
-from app.db.database import Base, engine
+from app.core.db import Base, engine
 
 
 @asynccontextmanager

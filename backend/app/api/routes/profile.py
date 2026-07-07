@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import get_db
-from app.db.models import Profile
+from app import crud
+from app.core.db import get_db
 from app.schemas.profile import ProfileCreate, ProfileResponse
 
 router = APIRouter()
@@ -13,8 +13,4 @@ async def create_profile(
     data: ProfileCreate,
     db: AsyncSession = Depends(get_db),
 ) -> ProfileResponse:
-    profile = Profile(**data.model_dump())
-    db.add(profile)
-    await db.commit()
-    await db.refresh(profile)
-    return profile
+    return await crud.create_profile(db, data)
