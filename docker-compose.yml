@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    restart: always
     environment:
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
       - API_BASE_URL=${API_BASE_URL:-http://backend:8000}
@@ -23,6 +24,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    restart: always
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://postgres:postgres@db:5432/peak_haunt}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
@@ -31,7 +33,8 @@ services:
     volumes:
       - ./backend:/usr/src/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     dns:
@@ -42,6 +45,12 @@ services:
     image: pgvector/pgvector:pg16
     container_name: peak_haunt_db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-peak_haunt}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-peak_haunt}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
