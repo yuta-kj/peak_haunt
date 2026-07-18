@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Profile, TrainingLog
@@ -9,8 +10,12 @@ from app.schemas.training import TrainingLogCreate
 async def create_profile(db: AsyncSession, data: ProfileCreate) -> Profile:
     profile = Profile(**data.model_dump())
     db.add(profile)
-    await db.commit()
-    await db.refresh(profile)
+    try:
+        await db.commit()
+        await db.refresh(profile)
+    except SQLAlchemyError:
+        await db.rollback()
+        raise
     return profile
 
 

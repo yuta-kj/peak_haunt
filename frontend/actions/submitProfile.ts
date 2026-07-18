@@ -26,7 +26,9 @@ export async function submitProfile(data: ProfileFormValues): Promise<SubmitResu
   }
 
   if (!res.ok) {
-    return { success: false, error: `送信に失敗しました (${res.status})` }
+    const body = await res.json().catch(() => null) as { detail?: string } | null
+    const detail = body?.detail ?? `送信に失敗しました (${res.status})`
+    return { success: false, error: detail }
   }
 
   const json = await res.json() as { id: number }

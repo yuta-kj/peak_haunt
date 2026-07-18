@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
@@ -13,4 +14,7 @@ async def create_profile(
     data: ProfileCreate,
     db: AsyncSession = Depends(get_db),
 ) -> ProfileResponse:
-    return await crud.create_profile(db, data)
+    try:
+        return await crud.create_profile(db, data)
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="プロフィールの保存に失敗しました")
