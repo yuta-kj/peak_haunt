@@ -1,9 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, Integer, String, Text, func
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
+
+# nomic-embed-text の出力次元数
+EMBEDDING_DIM = 768
 
 
 class Profile(Base):
@@ -33,3 +37,13 @@ class TrainingLog(Base):
     logged_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+class TrainingLogEmbedding(Base):
+    __tablename__ = "training_log_embeddings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    training_log_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_logs.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM), nullable=False)
