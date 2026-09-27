@@ -1,170 +1,102 @@
 ---
 name: git-pull-request
-description: "GitHub Pull Request を Conventional Commits 形式に則りながら作成します。使用方法：PR を作成したい、PR のタイトル・説明を統一したい、自動生成で効率化したい場合に使用できます。"
-argument-hint: "オプション：-a [basebranch] で自動生成モード（例：-a main）、-b で タイトル指定（例：-b feat(auth): add validation）"
+description: >-
+  GitHub Pull Request を Conventional Commits 形式に則りながら作成する。
+  PR を作成したい、pull request、プルリクエスト、PR のタイトル・説明を統一したい、
+  コミット後にレビューへ提出したい、レビュー提出、open a pull request の場合に使用する。
+argument-hint: "[basebranch] でベースブランチを指定（例: main）。省略時は develop。"
 ---
 
 # Git Pull Request
 
-GitHub Pull Request 作成を自動検証・自動生成で効率化します。
+## When to Use（いつ使うか）
 
-## クイックスタート
+- 機能開発・バグ修正のブランチで PR を作成したいとき（pull request、プルリクエスト）
+- PR タイトル・説明を Conventional Commits 形式に統一したいとき
+- コミット後すぐにレビューへ提出したいとき（レビュー提出、open a pull request）
+- PR 作成前にブランチ・プッシュ状態を自動確認してほしいとき
 
-自動生成モード（推奨、デフォルトベースブランチ develop）：
-```
-git pull request
-```
+## Procedure（手順）
 
-自動生成+ベースブランチ指定:
-```
-git pull request main
-```
+### 1. リポジトリ状態を確認する
 
+1. `git branch` で現在のブランチを確認し、`main` でないことを確かめる
+   - `main` の場合: 警告を表示し、続行するか確認する
+2. `git status` で未コミット変更がないか確認する
+   - 未コミット変更がある場合: `git-commit` スキルでコミットするよう促してから終了する
+3. ローカルブランチがリモートにプッシュ済みか確認する
+   - 未プッシュの場合: `git push -u origin <ブランチ名>` を促してから終了する
 
-## 使用場面
+### 2. ベースブランチを決定する
 
-- 新機能・バグ修正をコミット後、効率的に PR を作成したい
-- PR タイトル・説明を統一してレビューフローを整理したい
-- PR 作成前にブランチ・プッシュ状態を確認したい
+- 引数あり（例: `main`）→ その値をベースブランチに使用する
+- 引数なし → デフォルト `develop` を使用する
+- 有効値: `develop`, `main` のみ。それ以外はエラーを表示してキャンセルする
 
-## 処理フロー
+### 3. 最新コミットから PR タイトルを生成する
 
-### 1. リポジトリ状態を確認
+1. `git log -1 --pretty=%B` で最新コミットメッセージを取得する
+2. Conventional Commits 形式（`type(scope): description`）なら、そのままタイトルに使用する
+3. 形式が異なる場合は先頭 50 文字を採用する
 
-PR 作成前にリポジトリの状態を確認します：
-
-1. 現在のブランチ確認
-   - `git branch` を実行して現在のブランチを確認
-   - `main` にいないことを確認
-
-2. ローカル変更確認
-   - `git status` で未コミット変更がないか確認
-   - あれば `/git commit` でコミットするよう促す
-
-3. リモートプッシュ確認
-   - ローカルブランチがリモートにプッシュされているか確認
-   - されていなければプッシュを促す
-
-### 2. AI が自動判断
-
-ユーザーの入力に応じて以下に分岐：
-- `git pull request` → ステップ3: 自動生成フロー（デフォルト: develop）
-- `git pull request [basebranch]` → ステップ3: 自動生成フロー（develop/main 指定）
-
-
-### 3. 自動生成フロー
-
-コマンドを実行した場合、最新コミットから自動的に PR を作成します:
-
-#### 3.1 ベースブランチ検証
-
-引数があればベースブランチを検証：
-- 有効な値: `develop`, `main`
-- 無効な値: エラーメッセージ表示 → 実行キャンセル
-- 省略時: デフォルト `develop` を使用
-
-#### 3.2 最新コミット情報取得
-
-現在のブランチの最新コミットメッセージを取得：
-- Conventional Commits 形式なら type, scope, description を抽出
-- 形式が異なればコミットメッセージから自動推測
-
-#### 3.3 PR タイトル生成
-
-コミット情報から PR タイトルを生成：
-- Conventional Commits 形式の場合: `feat(auth): add login form validation` をそのまま使用
-- その他の形式: 最初の50文字を採用
-
-#### 3.4 最終確認画面
+### 4. 確認画面を表示してユーザーの承認を得る
 
 ```
 現在のブランチ: feature/auth-validation
 ターゲットブランチ: develop
 
-AIが最新コミットから自動生成：
-
-feat(auth): add login form validation
+PR タイトル（最新コミットから自動生成）:
+  feat(auth): add login form validation
 
 この内容で PR を作成しますか? [y/n/e/d]
   y: PR 作成実行
   n: キャンセル
   e: タイトルを編集
-  d: 説明を追加
+  d: 説明（body）を追加入力
 ```
 
-- `y`: PR 作成実行
-- `n`: キャンセル
-- `e`: タイトルを編集してから確認
-- `d`: 説明（description）を追加入力
+### 5. PR を作成して結果を表示する
 
-### 4. エラーハンドリング
+- 成功時: PR の URL・ブランチ名・タイトルを表示する（Output Format 参照）
+- 既存 PR がある場合: PR 番号とタイトルを表示し、新規作成するか確認する
+- 失敗時: エラー原因と対処策を日本語で表示する
 
-以下のエラーケースを想定：
+## Output Format（出力形式）
 
-#### 5.1 ローカル変更が未コミット
-```
-エラー: ローカルに未コミット変更があります
-
-以下を実行してください：
-  /git commit [メッセージ]
-
-その後、再度実行してください：
-  /git pull request
-```
-
-#### 5.2 ブランチが未プッシュ
-```
-警告: ローカルブランチがリモートにプッシュされていません
-
-以下を実行してください：
-  git push -u origin <ブランチ名>
-
-その後、再度実行してください：
-  /git pull request
-```
-
-#### 5.3 main ブランチから PR 作成
-```
-警告: main ブランチから PR を作成しようとしています
-
-これは通常、避けるべき操作です。
-
-本当に main から PR を作成しますか？ [y/n]
-```
-
-#### 5.4 同一ブランチで PR 既存
-```
-警告: 現在のブランチ（feature/auth-validation）には既に以下の PR があります：
-
-  #123 - feat(auth): add login form validation [OPEN]
-
-新しい PR を作成しますか？ [y/n]
-```
-
-### 5. 完了画面
-
-PR 作成成功時：
+**成功時:**
 ```
 PR 作成完了！
 
-PR URL: https://github.com/yuta-kj/peak_haunt/pull/123
-ブランチ: feature/auth-validation → develop
-タイトル: feat(auth): add login form validation
+PR URL: https://github.com/<owner>/<repo>/pull/<number>
+ブランチ: <head> → <base>
+タイトル: <title>
 
 次のステップ：
   - CI/CD パイプラインの実行を確認
   - コードレビュー者にレビューをリクエスト
-  - git push で新しいコミットを追加する場合は自動で PR に反映
 ```
 
-PR 作成失敗時：
+**警告（未コミット変更）:**
+```
+エラー: ローカルに未コミット変更があります
+→ git-commit スキルでコミット後、再度実行してください
+```
+
+**警告（未プッシュ）:**
+```
+警告: ローカルブランチがリモートにプッシュされていません
+→ git push -u origin <ブランチ名> を実行後、再度実行してください
+```
+
+**失敗時:**
 ```
 エラー: PR 作成に失敗しました
-
 原因: [GitHub API エラーメッセージ]
-
-対応策：
-  - ネットワーク接続を確認
-  - GitHub トークンが有効か確認
-  - 権限があるか確認
+対処: ネットワーク接続・GitHub トークンの有効性・リポジトリ権限を確認してください
 ```
+
+## References（参照）
+
+- [Conventional Commits 仕様](https://www.conventionalcommits.org/ja/v1.0.0/)
+- プロジェクトのコミット規約: `.github/copilot-instructions.md`
+- コミット作成スキル: `.github/skills/git-commit/SKILL.md`

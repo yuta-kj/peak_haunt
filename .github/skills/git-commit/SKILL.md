@@ -1,206 +1,112 @@
 ---
 name: git-commit
-description: "Conventional Commits形式でGitコミットを作成します。`git commit auto` で自動生成、`git commit <message>` で検証、`git commit` で対話的に実行。ステージされた変更をConventional Commits形式でコミットしたい、コミットメッセージを統一したい場合に使用できます。"
-argument-hint: "オプション：auto（自動生成）またはコミットメッセージを提供（例：feat: add login form validation）"
+description: >-
+  Conventional Commits 形式でGitコミットを作成する。
+  コミットしたい、git commit、変更を保存、コミットメッセージを統一したい、
+  ステージされた変更をコミット、commit changes の場合に使用する。
+argument-hint: "auto（自動生成）またはコミットメッセージ（例: feat: ○○機能を追加）。省略時は対話的モード。"
 ---
 
 # Git Commit
 
-Conventional Commits形式の自動検証付きでGitコミットを作成します。
+## When to Use（いつ使うか）
 
-## AIへの必須実行ルール
+- ステージされた変更を Conventional Commits 形式でコミットしたいとき（git commit、コミット）
+- コミットメッセージを統一してリポジトリ履歴を整理したいとき
+- コミット前に対象ファイルを確認してから保存したいとき（commit changes、変更を保存）
 
-**このスキルを実行する場合、以下を必ず守ること：**
+## Procedure（手順）
 
-1. **`git commit` を勝手に実行してはいけない** — 必ずユーザーの確認を取ってから実行すること
-2. **`auto` の場合は必ず確認画面を表示すること** — 差分を分析してメッセージを生成し、`[y/n/e]` でユーザーに確認を取ること
-3. **ステップを飛ばしてはいけない** — 下記「処理フロー」の各ステップを順番どおりに実行すること
-4. **ユーザーへの確認をスキップしてコミットしてはいけない** — `y` の返答が来るまで `git commit -m` を実行してはいけない
+> **重要事項（必ず守ること）:**
+> - `git commit -m` は必ずユーザーの `y` 確認後にのみ実行する
+> - 確認をスキップしてコミットしてはいけない
+> - コミットメッセージは **日本語・スコープなし** で記述する（形式: `<type>: <説明>`）
+> - 各ステップを順番どおりに実行し、飛ばしてはいけない
 
-## クイックスタート
+### 1. 入力に応じてパターンを選択する
 
-自動生成モード（推奨）：
-```
-git commit auto
-```
+- `auto` → パターンA（自動生成）
+- `<コミットメッセージ>` あり → パターンB（検証・実行）
+- 引数なし → パターンC（対話的モード）
 
-メッセージを指定して実行：
-```
-git commit feat: 新機能の説明
-```
+### 2. パターンA: 自動生成
 
-対話的に実行：
-```
-git commit
-```
-
-## 使用場面
-
-- ステージされた変更をConventional Commits形式でコミットしたい
-- コミットメッセージを統一してリポジトリ履歴を整理したい
-- コミット前にどのファイルが含まれるか確認したい
-
-## 処理フロー
-
-### 1. Git ステータスを確認
-
-コミット実行前にリポジトリの状態を確認します：
-
-1. ステージされたファイルを確認
-   - `git status` を実行してステージされたファイルが存在するか確認
-   - なければユーザーに `git add` でステージするか確認
-   - あれば、どのファイルがコミットに含まれるかを一覧表示
-
-2. ファイル一覧を表示
+1. 以下を**1回のターミナル呼び出し**でまとめて実行する:
+   ```bash
+   git add -A; git status --porcelain && git diff --staged
    ```
-   ステージされたファイル：
-      - src/pages/login.tsx
-      - src/components/LoginForm.tsx
-   ```
+2. 出力を分析してコミットメッセージを自動生成する（50文字以内）:
+   - 追加ファイルあり → `feat: ○○を追加`
+   - 修正ファイルのみ → `fix: ○○を修正` / `refactor: ○○を整理` / `chore: ○○を更新`
+   - ドキュメントのみ → `docs: ○○を更新`
+3. Output Format の「自動生成確認画面」を表示してユーザーの承認を得る
+4. `y` → コミット実行 / `n` → キャンセル（`git reset HEAD` でステージを戻す） / `e` → メッセージ編集
 
-### 2. AI が自動判断
+### 3. パターンB: 検証・実行
 
-ユーザーの入力に応じて以下に分岐：
-- `git commit auto` → ステップ3: 自動生成フロー
-- `git commit <メッセージ>` → ステップ4: 自動検証・実行フロー
-- `git commit` → ステップ5: 対話的モード
+1. 入力メッセージを解析し、`type` と `description` を抽出する
+2. 以下の検証項目をすべてチェックする:
+   - **Type**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore` のいずれか
+   - **Scope**: 使用しない（`()` 不要）
+   - **Description**: 日本語・50文字以下・ピリオドなし
+3. 検証成功 → Output Format の「検証済み確認画面」を表示してユーザーの承認を得る
+4. 検証失敗 → エラー内容と修正案を表示して終了する
 
-### 3. 自動生成フロー（パターンA）
+### 4. パターンC: 対話的モード
 
-`auto` オプションが指定された場合、AIがファイル変更から自動的にコミットメッセージを生成します：
+1. コミットタイプを選択させる（feat / fix / docs / style / refactor / perf / test / chore）
+2. 日本語の説明を入力させる（最大50文字）
+3. 生成したメッセージを表示し、Output Format の「対話的確認画面」でユーザーの承認を得る
+4. `y` → コミット実行
 
-#### 3.1 変更内容を分析
+## Output Format（出力形式）
 
-ステージされたファイルの差分から：
-- 追加されたファイル → 新機能 (feat)
-- 修正されたファイル → バグ修正 (fix)
-- ドキュメントのみ変更 → ドキュメント (docs)
-
-#### 3.2 メッセージを生成
-
-ファイル変更から自動的にメッセージを生成：
-- 50文字以内に収める
-
-#### 3.3 最終確認画面
-
+**自動生成確認画面（パターンA）:**
 ```
-ステージされたファイル：
-   - src/pages/login.tsx
-   - src/components/LoginForm.tsx
+コミット対象ファイル：
+  - src/pages/login.tsx
+  - src/components/LoginForm.tsx
 
-AIが変更内容から自動生成：
+feat: ログインフォームのバリデーションを追加
 
-feat: add login form validation
-
-このメッセージでコミットしますか? [y/n/e]
-  y: コミット実行
-  n: キャンセル
-  e: メッセージを編集
+[y/n/e]  y: 実行  n: キャンセル  e: メッセージ編集
 ```
 
-- `y`: コミット実行
-- `n`: キャンセル
-- `e`: メッセージを編集してから確認
-
-### 4. 自動検証・実行フロー（パターンB）
-
-完全なコミットメッセージが提供された場合：
-
-#### 4.1 メッセージを解析
-入力から以下を抽出します：
-- Type: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
-- Description: コロン後のテキスト
-
-例：`feat: add login form validation`
-- Type: `feat`
-- Description: `add login form validation`
-
-#### 4.2 フォーマット検証
-
-形式: `<type>: <description>`
-
-**検証項目：**
-- **Type**: feat, fix, docs, style, refactor, perf, test, chore のいずれか
-- **Description**: 命令形で50文字以下、最初は大文字、ピリオドなし、具体的に記述
-
-例：
-- `feat: add login validation`
-- `fix: resolve timeout error`
-- `docs: update readme`
-
-#### 4.3 検証結果に応じた処理
-
-検証成功の場合:
+**検証済み確認画面（パターンB）:**
 ```
-フォーマット検証完了: feat: add login form validation
+フォーマット検証完了: feat: ログインフォームのバリデーションを追加
 
 実行してもよろしいですか? [y/n]
 ```
-- ユーザーが確認 → コミット実行
-- `git commit -m "feat: add login form validation"`
 
-検証失敗の場合:
+**検証エラー:**
 ```
 検証エラー:
   - Description が55文字です（最大50文字）
 
-修正して再度実行してください：
-/git commit feat: fix error message character count
+修正して再度実行してください:
+  git commit feat: エラーメッセージの文字数を修正
 ```
 
-### 5. 対話的モード（パターンC）
-
-メッセージが提供されていない場合、ステップバイステップでガイドします：
-
-#### 5.1 コミットタイプを選択
+**対話的確認画面（パターンC）:**
 ```
-コミットタイプを選択してください：
-  feat      - 新しい機能を追加
-  fix       - バグを修正
-  docs      - ドキュメント変更のみ
-  style     - コード形式の変更（スペース、セミコロンなど）
-  refactor  - コードの再構成（動作変わらず）
-  perf      - パフォーマンス改善
-  test      - テスト関連の変更
-  chore     - 依存関係やビルド設定など
-```
-
-#### 5.2 Scope を入力(オプション)
-```
-影響を受ける領域/コンポーネント？（例：auth, api, ui）
-[Enterで省略]
-```
-
-#### 5.3 Description を入力
-```
-簡潔な説明を命令形で入力してください（最大50文字）：
-```
-
-例：`add login form validation`
-
-#### 5.4 最終確認
-AI がメッセージを自動生成して表示：
-```
-以下でコミットします：
-
-feat: add login form validation
+以下でコミットします:
+  feat: ログインフォームのバリデーションを追加
 
 実行してもよろしいですか？ [y/n]
 ```
 
-#### 5.5 コミット実行
-ユーザーが確認すればコミットを実行：
+**成功時:**
 ```
-git commit -m "feat: add login form validation"
+コミット完了: feat: ログインフォームのバリデーションを追加 (abc1234)
+
+次のステップ:
+  - git push でリモートにプッシュ
+  - git-pull-request スキルで PR を作成
 ```
 
-### 6. 完了画面
+## References（参照）
 
-コミット成功時：
-```
-コミット完了: feat: add login form validation (abc1234)
-
-次のステップ：
-  - git push で リモートにプッシュ
-  - /create-pull-request で PR を作成
-```
+- [Conventional Commits 仕様](https://www.conventionalcommits.org/ja/v1.0.0/)
+- プロジェクトのコミット規約: `.github/copilot-instructions.md`
+- PR 作成スキル: `.github/skills/git-pull-request/SKILL.md`
