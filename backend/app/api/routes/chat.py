@@ -64,7 +64,7 @@ async def recommend(
 
 
 @router.post("/recommend/stream")
-
+async def recommend_stream(
     payload: RecommendRequest,
     db: AsyncSession = Depends(get_db),
 ) -> StreamingResponse:
