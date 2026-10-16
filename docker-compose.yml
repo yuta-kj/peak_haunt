@@ -14,9 +14,6 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - backend
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   backend:
     build:
@@ -26,7 +23,7 @@ services:
       - "8000:8000"
     restart: always
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://postgres:postgres@db:5432/peak_haunt}
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@db:5432/peak_haunt}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-phi3:3.8b}
       - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
@@ -38,9 +35,6 @@ services:
         condition: service_healthy
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   db:
     image: pgvector/pgvector:pg16
@@ -60,9 +54,6 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
 volumes:
   pgdata:
