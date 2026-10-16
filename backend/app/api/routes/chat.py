@@ -90,7 +90,7 @@ async def recommend_stream(
 
     async def event_stream() -> AsyncGenerator[str, None]:
         try:
-            async for token in await provider.generate_stream(prompt):
+            async for token in provider.generate_stream(prompt):
                 yield f"data: {token}\n\n"
         except Exception as exc:
             yield f"data: [ERROR] {exc}\n\n"
