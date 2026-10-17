@@ -1,4 +1,3 @@
-from pgvector.sqlalchemy import Vector
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,9 +29,7 @@ async def create_training_log(
     return log
 
 
-async def get_training_logs(
-    db: AsyncSession, profile_id: int
-) -> list[TrainingLog]:
+async def get_training_logs(db: AsyncSession, profile_id: int) -> list[TrainingLog]:
     result = await db.execute(
         select(TrainingLog)
         .where(TrainingLog.profile_id == profile_id)
@@ -69,7 +66,9 @@ async def search_similar_logs(
 ) -> list[TrainingLog]:
     result = await db.execute(
         select(TrainingLog)
-        .join(TrainingLogEmbedding, TrainingLog.id == TrainingLogEmbedding.training_log_id)
+        .join(
+            TrainingLogEmbedding, TrainingLog.id == TrainingLogEmbedding.training_log_id
+        )
         .where(TrainingLog.profile_id == profile_id)
         .order_by(TrainingLogEmbedding.embedding.cosine_distance(query_embedding))
         .limit(limit)
