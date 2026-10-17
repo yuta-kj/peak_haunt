@@ -19,5 +19,7 @@ def get_llm_provider() -> LLMProvider:
 
 def get_embedding_provider() -> EmbeddingProvider:
     if LLM_PROVIDER == "ollama":
-        return OllamaEmbeddingProvider(base_url=OLLAMA_BASE_URL, model=OLLAMA_EMBEDDING_MODEL)
+        return OllamaEmbeddingProvider(
+            base_url=OLLAMA_BASE_URL, model=OLLAMA_EMBEDDING_MODEL
+        )
     raise ValueError(f"Unknown LLM_PROVIDER: {LLM_PROVIDER}")

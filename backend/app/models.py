@@ -44,6 +44,11 @@ class TrainingLogEmbedding(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     training_log_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("training_logs.id", ondelete="CASCADE"), nullable=False, unique=True
+        Integer,
+        ForeignKey("training_logs.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
     )
-    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM), nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(
+        Vector(EMBEDDING_DIM), nullable=False
+    )

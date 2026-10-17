@@ -8,7 +8,7 @@ class TrainingLogCreate(BaseModel):
     exercise: str = Field(min_length=1, max_length=100)
     sets: int = Field(ge=1)
     reps: int = Field(ge=1)
-    weight_kg: float = Field(ge=0)
+    load_kg: float = Field(ge=0)
     memo: str | None = None
 
 

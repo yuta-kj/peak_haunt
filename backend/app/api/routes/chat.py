@@ -36,13 +36,15 @@ async def recommend(
     query_text = f"{query_log.exercise} {query_log.sets}セット {query_log.reps}回 {query_log.load_kg}kg"
     try:
         query_embedding = await embedding_provider.embed(query_text)
-        logs = await crud.search_similar_logs(db, payload.profile_id, query_embedding, limit=5)
+        logs = await crud.search_similar_logs(
+            db, payload.profile_id, query_embedding, limit=5
+        )
     except Exception:
         # 埋め込み失敗時は直近ログにフォールバック
         logs = await crud.get_recent_training_logs(db, payload.profile_id, limit=5)
 
     log_text = "\n".join(
-        f"- {log.exercise}: {log.sets}セット×{log.reps}回 {log.weight_kg}kg"
+        f"- {log.exercise}: {log.sets}セット×{log.reps}回 {log.load_kg}kg"
         + (f"（{log.memo}）" if log.memo else "")
         for log in logs
     )
@@ -74,7 +76,7 @@ async def recommend_stream(
         raise HTTPException(status_code=404, detail="トレーニング記録が見つかりません")
 
     log_text = "\n".join(
-        f"- {log.exercise}: {log.sets}セット×{log.reps}回 {log.weight_kg}kg"
+        f"- {log.exercise}: {log.sets}セット×{log.reps}回 {log.load_kg}kg"
         + (f"（{log.memo}）" if log.memo else "")
         for log in logs
     )
