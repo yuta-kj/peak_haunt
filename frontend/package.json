@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "check-lint": "npm exec -- eslint .",
+    "lint": "npm run check-lint"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.0",
@@ -20,9 +21,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@next/eslint-plugin-next": "^16.4.2",
     "@types/node": "^20",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@typescript-eslint/parser": "^8.71.2",
+    "eslint-config-next": "^16.4.2",
     "typescript": "^5"
   }
 }
