@@ -2,11 +2,11 @@ import { z } from "zod"
 
 export const trainingLogSchema = z.object({
   profileId: z.number().int().positive(),
-  excercise: z.string().min(1, "種目名を入力してください").max(100),
+  exercise: z.string().min(1, "種目名を入力してください").max(100),
   sets: z.number().int().min(1, "1セット以上を入力してください"),
   reps: z.number().int().min(1, "1回以上を入力してください"),
-  weights: z.number().min(0, "0kg以上を指定してください"),
-  memo: z.string().option()
+  load_kg: z.number().min(0, "0kg以上を指定してください"),
+  memo: z.string().optional(),
 })
 
 export type TrainingLogFormValues = z.infer<typeof trainingLogSchema>

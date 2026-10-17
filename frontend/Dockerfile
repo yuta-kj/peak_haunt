@@ -1,5 +1,5 @@
 # ステージ 1: Alpine + ビルドツールで依存関係をインストール（Tailwind v4 ネイティブバインディングをコンパイル）
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Tailwind v4 の Rust バインディングコンパイルに必要なツール
 RUN apk add --no-cache python3 make g++
@@ -13,7 +13,7 @@ RUN npm install && \
     npm install --no-save "@tailwindcss/oxide-linux-x64-musl@${OXIDE_VER}"
 
 # ステージ 2: Alpine ベースの軽量イメージで本番実行（musl 互換バイナリを使用）
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /usr/src/app
 

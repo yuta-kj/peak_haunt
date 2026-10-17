@@ -33,7 +33,7 @@ async def recommend(
 
     embedding_provider = get_embedding_provider()
     query_log = recent[0]
-    query_text = f"{query_log.exercise} {query_log.sets}セット {query_log.reps}回 {query_log.weight_kg}kg"
+    query_text = f"{query_log.exercise} {query_log.sets}セット {query_log.reps}回 {query_log.load_kg}kg"
     try:
         query_embedding = await embedding_provider.embed(query_text)
         logs = await crud.search_similar_logs(db, payload.profile_id, query_embedding, limit=5)
