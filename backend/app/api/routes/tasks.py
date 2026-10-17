@@ -22,7 +22,7 @@ async def create_training_log(
 
     # 埋め込みを非同期で生成・保存（失敗してもログ保存は成功扱い）
     try:
-        text = f"{log.exercise} {log.sets}セット {log.reps}回 {log.weight_kg}kg"
+        text = f"{log.exercise} {log.sets}セット {log.reps}回 {log.load_kg}kg"
         if log.memo:
             text += f" {log.memo}"
         provider = get_embedding_provider()

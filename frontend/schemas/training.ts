@@ -17,6 +17,6 @@ export interface TrainingLogItem {
   excercise: string
   sets: number
   reps: number
-  weight_kg: number
+  load_kg: number
   memo: string | null
 }

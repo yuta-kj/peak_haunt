@@ -19,7 +19,7 @@ export async function createTrainingLog(data: TrainingLogFormValues) {
         exercise: parsed.data.exercise,
         sets: parsed.data.sets,
         reps: parsed.data.reps,
-        weight_kg: parsed.data.load_kg,
+        load_kg: parsed.data.load_kg,
         memo: parsed.data.memo || null,
       }),
     })
