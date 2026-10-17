@@ -1,41 +1,51 @@
 services:
-  app:
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    restart: always
     environment:
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+      - API_BASE_URL=${API_BASE_URL:-http://backend:8000}
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      - api
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - backend
 
-  api:
+  backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    restart: always
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://postgres:postgres@db:5432/peak_haunt}
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@db:5432/peak_haunt}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-phi3:3.8b}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
     volumes:
       - ./backend:/usr/src/app
     depends_on:
-      - db
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      db:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db:
     image: pgvector/pgvector:pg16
     container_name: peak_haunt_db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-peak_haunt}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-peak_haunt}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
@@ -44,9 +54,6 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
 volumes:
   pgdata:
